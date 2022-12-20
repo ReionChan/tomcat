@@ -1,0 +1,136 @@
+@startuml
+
+header "@ReionChan"
+footer "@ReionChan"
+
+title "<font size=50>Tomcat - Process Connection Abstraction"
+
+class Connector {
+    #adapter
+    #protocolHandler
+}
+
+interface ProtocolHandler {
+    +{abstract} setAdapter(Adapter)
+}
+
+interface Processor {
+    +{abstract} process(SocketWrapperBase<?>, SocketEvent) : SocketState
+}
+
+abstract class AbstractProcessorLight implements Processor {
+    #{abstract} service(SocketWrapperBase<?>) : SocketState
+    #{abstract} dispatch(SocketEvent) : SocketState
+    +process(SocketWrapperBase<?>, SocketEvent) : SocketState
+}
+
+abstract class AbstractProcessor extends AbstractProcessorLight {
+    #adapter : "type of Adapter"
+    #endpoint : "type of AbstractEndpoint"
+    #request : "type of org.apache.coyote.Request"
+    #response : "type of org.apache.coyote.Response"
+    +dispatch(SocketEvent status) : SocketState
+}
+
+abstract class AbstractProtocol<S> implements ProtocolHandler {
+    .. Inner Class ..
+    #{static} ConnectionHandler<S>
+    --
+    -endpoint
+    -handler
+    --
+    #{abstract} createProcessor()
+}
+
+interface Adapter {
+    +{abstract} service(Request, Response)
+}
+
+class CoyoteAdapter implements Adapter {
+    +service(Request, Response)
+}
+
+abstract class SocketProcessorBase<S> implements Runnable {
+    #socketWrapper
+    #event
+    #{abstract} doRun() : void
+    +run() : void
+}
+
+abstract class AbstractEndpoint<S,U> {
+    .. Inner Class ..
+    +{static} <<interface>> Handler<S>
+    --
+    -port
+    -executor : "execute task of SocketProcessorBase"
+    -handler : "handle event of SocketEvent, parameters are wrapped in SocketWrapperBase"
+    #acceptor : "Thread used to accept new connections and pass them to worker threads"
+    --
+    #startAcceptorThread()
+    #{abstract} serverSocketAccept() : U
+    #{abstract} setSocketOptions(U) : boolean
+    #{abstract} createSocketProcessor(SocketWrapperBase~<S>, SocketEvent) : SocketProcessorBase~<S>
+    +processSocket(SocketWrapperBase~<S>, SocketEvent, boolean) : boolean
+}
+
+class Acceptor<U> {
+    -endpoint
+    +run()
+}
+
+interface AbstractEndpoint.Handler<S> {
+    +{abstract} process(SocketWrapperBase~<S>, SocketEvent) : SocketState
+}
+
+class AbstractProtocol.ConnectionHandler<S> implements AbstractEndpoint.Handler {
+    -proto : "type of AbstractProtocol~<S>"
+    +process(SocketWrapperBase~<S>, SocketEvent) : SocketState
+}
+
+together {
+    interface Adapter
+    class CoyoteAdapter
+}
+
+together {
+    interface ProtocolHandler
+    abstract class AbstractProtocol
+    class AbstractProtocol.ConnectionHandler
+}
+
+together {
+    interface Processor
+    abstract class AbstractProcessor
+    class AbstractProcessorLight
+}
+
+together {
+    abstract class AbstractEndpoint
+    interface AbstractEndpoint.Handler
+}
+
+Connector "1" *-down- "1" ProtocolHandler : Connector(..)
+Adapter <.up. Connector : initInternal()
+Adapter <.left. ProtocolHandler : setAdapter(..)
+AbstractEndpoint "1" ..* "1" AbstractProtocol : AbstractProtocol(..)
+AbstractProtocol.ConnectionHandler "1" *..* "1" AbstractProtocol : setHandler(..)
+AbstractProtocol.ConnectionHandler  <.. AbstractEndpoint : setHandler(..)
+Adapter "1" --* "1" AbstractProcessor
+'AbstractEndpoint.Handler <.. AbstractEndpoint : "Inner Class"
+'AbstractProtocol.ConnectionHandler <.. AbstractProtocol : "Inner Class"
+Acceptor <.up. AbstractEndpoint : startAcceptorThread()
+AbstractEndpoint <.[#blue,dashed,thickness=6]. Acceptor #text:blue : ① setSocketOptions(..)
+SocketProcessorBase <.[#blue,dashed,thickness=6]. AbstractEndpoint #text:blue : ② createSocketProcessor(..)
+AbstractProtocol.ConnectionHandler <.left[#blue,dashed,thickness=6]. SocketProcessorBase #text:blue : ③ getHandler().process(..)
+AbstractProtocol <.[#blue,dashed,thickness=6]. AbstractProtocol.ConnectionHandler #text:blue : ④ getProtocol().createProcessor()
+Processor <.left. AbstractProtocol : createProcessor()
+AbstractProcessorLight <.left[#blue,dashed,thickness=6]. AbstractProtocol #text:blue : ⑤ process(..)
+CoyoteAdapter <.[#blue,dashed,thickness=6]. AbstractProcessor #text:blue : ⑥ getAdapter().service(..)
+
+
+skinparam groupInheritance 2
+AbstractProcessor <|-- AjpProcessor
+AbstractProcessor <|-- Http11Processor
+AbstractProcessor <|-- StreamProcessor
+
+@enduml

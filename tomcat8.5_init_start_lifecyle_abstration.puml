@@ -1,0 +1,157 @@
+@startuml
+
+header "@ReionChan"
+footer "@ReionChan"
+
+title "<font size=58>Tomcat - Lifecycle Abstraction"
+participant Bootstrap
+participant Catalina
+participant Digester
+participant Server
+participant Service
+participant Mapper
+participant MapperListener
+participant Executor
+participant Connector
+participant ProtocolHandler
+participant AbstractProtocol
+participant AbstractEndpoint
+participant AbstractEndpoint.ConnectionHandler
+participant Adapter
+participant Engine
+participant Host
+participant Context
+participant Wrapper
+participant Pipeline
+participant Valve
+
+
+' init
+autonumber 1.1
+Bootstrap -> Bootstrap : init()
+activate Bootstrap
+Bootstrap -> Catalina : newInstance()
+deactivate Bootstrap
+||30||
+
+' load
+autonumber 2.1
+Bootstrap -> Bootstrap : load()
+activate Bootstrap
+Bootstrap -> Catalina : load()
+activate Catalina
+Catalina -> Digester : createStartDigester()
+Catalina -> Digester : digester.parse(..)
+activate Digester
+Digester -> Server : newInstance()
+Digester -> Service : newInstance()
+activate Service
+Service -> Mapper : new Mapper()
+Service -> MapperListener : new MapperListener(..)
+deactivate Service
+Digester -> Executor : newInstance()
+Digester -> Connector : new Connector(..)
+activate Connector
+Connector -> ProtocolHandler : newInstance()
+activate ProtocolHandler
+ProtocolHandler -> AbstractProtocol : AbstractProtocol(..)
+activate AbstractProtocol
+AbstractProtocol <- AbstractEndpoint : this.endpoint
+AbstractProtocol -> AbstractEndpoint.ConnectionHandler : new ConnectionHandler(this)
+deactivate AbstractProtocol
+deactivate ProtocolHandler
+deactivate Connector
+Digester -> Engine : newInstance()
+Digester -> Host : newInstance()
+Digester -> Context : newInstance()
+deactivate Digester
+||30||
+
+' catalina init
+Catalina -> Server : init()
+activate Server
+Server -> Service : init()
+activate Service
+Service -> Engine : init()
+Service -> Executor : init()
+Service -> MapperListener : init()
+Service -> Connector : init()
+activate Connector
+Connector -> Adapter : new CoyoteAdapter(this)
+Connector -> ProtocolHandler : init()
+activate ProtocolHandler
+ProtocolHandler -> AbstractProtocol : init()
+activate AbstractProtocol
+AbstractProtocol -> AbstractEndpoint : init()
+deactivate AbstractProtocol
+deactivate ProtocolHandler
+deactivate Connector
+deactivate Service
+deactivate Server
+deactivate Catalina
+deactivate Bootstrap
+||30||
+
+' start
+autonumber 3.1
+Bootstrap -> Bootstrap : start()
+activate Bootstrap
+Bootstrap -> Catalina : start()
+activate Catalina
+Catalina -> Server : start()
+activate Server
+Server  -> Service : start()
+activate Service
+Service -> Engine : start()
+activate Engine
+Engine -> Host : start()
+activate Host
+Host -> Context : start()
+activate Context
+Context -> Wrapper : start()
+activate Wrapper
+Wrapper -> Pipeline : start()
+activate Pipeline
+Pipeline -> Valve : start()
+deactivate Pipeline
+deactivate Wrapper
+Context -> Pipeline : start()
+activate Pipeline
+Pipeline -> Valve : start()
+deactivate Pipeline
+deactivate Context
+Host -> Pipeline : start()
+activate Pipeline
+Pipeline -> Valve : start()
+deactivate Pipeline
+deactivate Host
+Engine -> Pipeline : start()
+activate Pipeline
+Pipeline -> Valve : start()
+deactivate Pipeline
+deactivate Engine
+Service -> Executor : start()
+Service -> MapperListener : start()
+activate MapperListener
+MapperListener -> MapperListener : registerHost(..)
+MapperListener -> Mapper : addHost(..)
+MapperListener -> MapperListener : registerContext(..)
+MapperListener -> MapperListener : prepareWrapperMappingInfo(..)
+MapperListener -> Mapper : addContextVersion(..)
+deactivate MapperListener
+Service -> Connector : start()
+activate Connector
+Connector -> ProtocolHandler : start()
+activate ProtocolHandler
+ProtocolHandler -> AbstractProtocol : start()
+activate AbstractProtocol
+AbstractProtocol -> AbstractEndpoint : start()
+deactivate AbstractProtocol
+deactivate ProtocolHandler
+deactivate Connector
+deactivate Service
+deactivate Server
+deactivate Catalina
+deactivate Bootstrap
+
+@enduml
