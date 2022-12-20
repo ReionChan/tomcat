@@ -1558,7 +1558,7 @@
           enabled="${test.coverage}"
           destfile="${coverage.datafile}"
           >
-        <junit printsummary="yes" fork="yes" dir="." showoutput="${test.verbose}"
+        <junit printsummary="yes" fork="no" dir="." showoutput="${test.verbose}"
           errorproperty="test.result.error"
           failureproperty="test.result.failure"
           haltonfailure="${test.haltonfailure}"
