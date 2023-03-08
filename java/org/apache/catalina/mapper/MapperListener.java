@@ -102,7 +102,7 @@ public class MapperListener extends LifecycleMBeanBase
         }
 
         findDefaultHost();
-
+        // 将映射监听器注册到容器已经所有子容器
         addListeners(engine);
 
         Container[] conHosts = engine.findChildren();
@@ -378,6 +378,7 @@ public class MapperListener extends LifecycleMBeanBase
 
         WebResourceRoot resources = context.getResources();
         String[] welcomeFiles = context.findWelcomeFiles();
+        // 单个 servlet 包含多个映射时，每个映射形成一个 WrapperMappingInfo
         List<WrapperMappingInfo> wrappers = new ArrayList<>();
 
         for (Container container : context.findChildren()) {
@@ -388,7 +389,7 @@ public class MapperListener extends LifecycleMBeanBase
                         container.getName(), contextPath, service));
             }
         }
-
+        // 将此 Context 添加到 mapper 映射器中
         mapper.addContextVersion(host.getName(), host, contextPath,
                 context.getWebappVersion(), context, welcomeFiles, resources,
                 wrappers);

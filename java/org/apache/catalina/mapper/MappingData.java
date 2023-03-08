@@ -28,12 +28,17 @@ import org.apache.tomcat.util.buf.MessageBytes;
  * @author Remy Maucherat
  */
 public class MappingData {
-
+    // 匹配的虚拟主机
     public Host host = null;
+    // 匹配的上下文，即应用名称
     public Context context = null;
+    // 请求路径 / 的个数
     public int contextSlashCount = 0;
+    // 不同版本的上下文实例数组
     public Context[] contexts = null;
+    // 匹配的 Wrapper
     public Wrapper wrapper = null;
+    // 是否是 jsp 通配符，/* 映射的
     public boolean jspWildCard = false;
 
     /**

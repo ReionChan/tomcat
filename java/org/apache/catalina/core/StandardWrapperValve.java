@@ -144,7 +144,7 @@ final class StandardWrapperValve extends ValveBase {
         request.setAttribute(Globals.DISPATCHER_TYPE_ATTR,dispatcherType);
         request.setAttribute(Globals.DISPATCHER_REQUEST_PATH_ATTR,
                 requestPathMB);
-        // Create the filter chain for this request
+        // 为当前请求构造过滤器链
         ApplicationFilterChain filterChain =
                 ApplicationFilterFactory.createFilterChain(request, wrapper, servlet);
 
@@ -160,6 +160,7 @@ final class StandardWrapperValve extends ValveBase {
                         if (request.isAsyncDispatching()) {
                             request.getAsyncContextInternal().doInternalDispatch();
                         } else {
+                            // 请求交给过滤器链处理时，已经转换成 RequestFacade 类型
                             filterChain.doFilter(request.getRequest(),
                                     response.getResponse());
                         }

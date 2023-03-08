@@ -443,6 +443,7 @@ public final class Mapper {
     private void addWrappers(ContextVersion contextVersion,
             Collection<WrapperMappingInfo> wrappers) {
         for (WrapperMappingInfo wrapper : wrappers) {
+            // 将 wrappers 中的映射按匹配类型分类保存
             addWrapper(contextVersion, wrapper.getMapping(),
                     wrapper.getWrapper(), wrapper.isJspWildCard(),
                     wrapper.isResourceOnly());
@@ -734,6 +735,7 @@ public final class Mapper {
      *         the mapping
      */
     @SuppressWarnings("deprecation") // contextPath
+    // 请求路径匹配填充 request 的 mappingData
     private final void internalMap(CharChunk host, CharChunk uri,
             String version, MappingData mappingData) throws IOException {
 
