@@ -1,0 +1,87 @@
+@startuml
+
+header "@ReionChan"
+footer "@ReionChan"
+
+skinparam backgroundColor WhiteSmoke
+
+title "<font size=20>Mapping Model"
+
+interface Engine {
+    #HashMap<String, Container> children
+}
+interface Host {
+    #HashMap<String, Container> children
+}
+interface Context {
+    #HashMap<String, Container> children
+}
+interface Wrapper {
+    #HashMap<String, Container> children
+}
+
+class StandardService {
+    -Engine engine
+    #Mapper mapper
+    #MapperListener mapperListener
+}
+
+class Mapper {
+    ~MappedHost[] hosts
+    +void addWrappers(hostName, contextPath, version, wrappers)
+    #void addWrapper(contextVersion, path, wrapper, jspWildCard, resourceOnly)
+    +void map(context, uri, mappingData)
+    +void map(host, uri, version, mappingData)
+}
+
+class MapperListener {
+    -Service service
+    -Mapper mapper
+    +void startInternal()
+    -void registerHost(host)
+    -void registerContext(context)
+    -void registerWrapper(wrapper)
+}
+
+class MappedHost {
+    +Host object
+    +ContextList contextList
+}
+
+class ContextList {
+    +MappedContext[] contexts
+}
+
+class MappedContext {
+    +ContextVersion[] versions
+}
+
+class ContextVersion {
+    +Context object
+    +MappedWrapper defaultWrapper
+    +MappedWrapper[] exactWrappers
+    +MappedWrapper[] wildcardWrappers
+    +MappedWrapper[] extensionWrappers
+}
+
+class MappedWrapper {
+    +Wrapper object
+}
+
+MapperListener "1" *-left-> "1" StandardService
+MapperListener "1" *--> "1" Mapper
+StandardService "1" *--> "1" Mapper
+StandardService "1" *-down-> "1" Engine
+Engine "1" *-down-> "*" Host
+Mapper "1" *-down-> "*" MappedHost
+Host "1" <-right-* "1" MappedHost
+Host "1" *-down-> "*" Context
+MappedHost "1" *-down-> "1" ContextList
+ContextList "1" *-down-> "*" MappedContext
+MappedContext "1" *-down-> "*" ContextVersion
+Context "1" <-right-* "1" ContextVersion
+ContextVersion "1" *-down-> "*" MappedWrapper
+Context "1" *-down-> "*" Wrapper
+Wrapper "1" <-right-* "1" MappedWrapper
+
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+
+skinparam backgroundColor WhiteSmoke
+
+header "@ReionChan"
+footer "@ReionChan"
+skin rose
+
+title "<font size=30>Tomcat Container Model"
+
+component "Tomcat Container" {
+    frame "Engine" #lightcyan {
+        frame "Host" #cyan {
+          component "Servlet Container" #white {
+            frame "Context 1" #orange {
+              [Wrapper] as w1
+              [Wrapper] as w2
+            }
+            frame "Context 2" #orange {
+              [Wrapper] as w3
+              [Wrapper] as w4
+            }
+          }
+        }
+    }
+}
+
+@enduml

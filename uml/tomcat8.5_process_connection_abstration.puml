@@ -3,11 +3,18 @@
 header "@ReionChan"
 footer "@ReionChan"
 
+skinparam backgroundColor WhiteSmoke
+
 title "<font size=50>Tomcat - Process Connection Abstraction"
 
 class Connector {
     #adapter
+    #service
     #protocolHandler
+}
+
+interface Valve {
+    +invoke(org.apache.catalina.connector.Request, org.apache.catalina.connector.Response)
 }
 
 interface ProtocolHandler {
@@ -47,7 +54,8 @@ interface Adapter {
 }
 
 class CoyoteAdapter implements Adapter {
-    +service(Request, Response)
+    -connector
+    +service(org.apache.coyote.Request, org.apache.coyote.Response)
 }
 
 abstract class SocketProcessorBase<S> implements Runnable {
@@ -101,7 +109,7 @@ together {
 together {
     interface Processor
     abstract class AbstractProcessor
-    class AbstractProcessorLight
+    abstract class AbstractProcessorLight
 }
 
 together {
@@ -109,24 +117,26 @@ together {
     interface AbstractEndpoint.Handler
 }
 
-Connector "1" *-down- "1" ProtocolHandler : Connector(..)
-Adapter <.up. Connector : initInternal()
-Adapter <.left. ProtocolHandler : setAdapter(..)
+Connector "1" *-left- "1" ProtocolHandler : Connector(..)
+Adapter <.right. Connector : initInternal()
+Adapter <.down. ProtocolHandler : setAdapter(..)
+CoyoteAdapter "1" *-left- "1" Connector
 AbstractEndpoint "1" ..* "1" AbstractProtocol : AbstractProtocol(..)
 AbstractProtocol.ConnectionHandler "1" *..* "1" AbstractProtocol : setHandler(..)
 AbstractProtocol.ConnectionHandler  <.. AbstractEndpoint : setHandler(..)
-Adapter "1" --* "1" AbstractProcessor
+'Adapter "1" --* "1" AbstractProcessor
 'AbstractEndpoint.Handler <.. AbstractEndpoint : "Inner Class"
 'AbstractProtocol.ConnectionHandler <.. AbstractProtocol : "Inner Class"
 Acceptor <.up. AbstractEndpoint : startAcceptorThread()
-AbstractEndpoint <.[#blue,dashed,thickness=6]. Acceptor #text:blue : ① setSocketOptions(..)
-SocketProcessorBase <.[#blue,dashed,thickness=6]. AbstractEndpoint #text:blue : ② createSocketProcessor(..)
-AbstractProtocol.ConnectionHandler <.left[#blue,dashed,thickness=6]. SocketProcessorBase #text:blue : ③ getHandler().process(..)
-AbstractProtocol <.[#blue,dashed,thickness=6]. AbstractProtocol.ConnectionHandler #text:blue : ④ getProtocol().createProcessor()
+AbstractEndpoint <.[#blue,dashed,thickness=3]. Acceptor #text:blue : ① setSocketOptions(..)
+SocketProcessorBase <.[#blue,dashed,thickness=3]. AbstractEndpoint #text:blue : ② createSocketProcessor(..)
+AbstractProtocol.ConnectionHandler <.left[#blue,dashed,thickness=3]. SocketProcessorBase #text:blue : ③ getHandler().process(..)
+AbstractProtocol <.[#blue,dashed,thickness=3]. AbstractProtocol.ConnectionHandler #text:blue : ④ getProtocol().createProcessor()
 Processor <.left. AbstractProtocol : createProcessor()
-AbstractProcessorLight <.left[#blue,dashed,thickness=6]. AbstractProtocol #text:blue : ⑤ process(..)
-CoyoteAdapter <.[#blue,dashed,thickness=6]. AbstractProcessor #text:blue : ⑥ getAdapter().service(..)
-
+AbstractProcessorLight <.left[#blue,dashed,thickness=3]. AbstractProtocol #text:blue : ⑤ process(..)
+CoyoteAdapter <.[#blue,dashed,thickness=3]. AbstractProcessor #text:blue : ⑥ getAdapter().service(..)
+'CoyoteAdapter .[#blue,dashed,thickness=3].> Connector #text:blue : ⑦ connector
+CoyoteAdapter .[#blue,dashed,thickness=3].> Valve #text:blue : ⑦ connector.getService().getContainer().getPipeline().getFirst().invoke(..)
 
 skinparam groupInheritance 2
 AbstractProcessor <|-- AjpProcessor

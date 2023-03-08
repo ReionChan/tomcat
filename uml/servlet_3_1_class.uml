@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>javax.servlet.Servlet</OriginalElement>
+  <nodes>
+    <node x="210.0" y="108.0">javax.servlet.ServletRequest</node>
+    <node x="0.0" y="108.0">javax.servlet.ServletConfig</node>
+    <node x="149.25" y="0.0">javax.servlet.ServletResponse</node>
+    <node x="137.5" y="216.0">javax.servlet.Servlet</node>
+    <node x="99.50000000000001" y="324.0">javax.servlet.ServletContext</node>
+  </nodes>
+  <notes />
+  <edges />
+  <settings layout="Hierarchic Group" zoom="1.0" x="205.0" y="191.0" />
+  <SelectedNodes>
+    <node>javax.servlet.Servlet</node>
+  </SelectedNodes>
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>public</VISIBILITY>
+</Diagram>
+

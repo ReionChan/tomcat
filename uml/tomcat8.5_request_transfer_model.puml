@@ -1,0 +1,17 @@
+@startuml
+
+skinparam backgroundColor WhiteSmoke
+
+header "@ReionChan"
+footer "@ReionChan"
+
+title "<font size=20>Tomcat Request Transfer Model"
+
+rectangle "org.apache.coyote.Request\norg.apache.coyote.Response" as co <<$archimate/service>> #Cyan
+rectangle "Request\nResponse" as ca <<$archimate/service>> #LightBlue
+rectangle "RequestFacade\nResponseFacade" as se <<$archimate/business-process>> #Orange
+
+co "Coyote" <-right-> "Catalina" ca : CoyoteAdapter
+ca "Catalina" <-right-> "Servlet" se : Application Filter Chain
+
+@enduml

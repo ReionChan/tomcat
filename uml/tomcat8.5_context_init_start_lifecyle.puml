@@ -1,0 +1,138 @@
+@startuml
+
+skinparam backgroundColor WhiteSmoke
+
+header "@ReionChan"
+footer "@ReionChan"
+
+title "<font size=28>Servlet Container Starting Process"
+
+participant Engine
+participant Host
+participant HostConfig
+participant Context
+participant ContextConfig
+participant Wrapper
+participant Pipeline
+participant Valve
+
+' start
+autonumber 1.1
+activate Engine
+Engine -> Host : start()
+activate Host
+Host -> Host : init()
+Host -> Context : start()
+activate Context
+Context -> Context : init()
+Context -> ContextConfig : INITIALIZED
+activate ContextConfig
+ContextConfig -> ContextConfig : init()
+note right
+When Context's state is INITIALIZED
+the LifecycleListener <ContextConfig> execute
+contextConfig() to parse
+conf/context.xml and META-INF/context.xml
+end note
+ContextConfig -> Context
+deactivate ContextConfig
+deactivate Context
+Context -> Context : start()
+activate Context
+Context -> ContextConfig : fireLifecycleEvent
+activate ContextConfig
+ContextConfig -> ContextConfig : configureStart()
+note right
+Context fire CONFIGURE_START_EVENT
+the LifecycleListener <ContextConfig>
+execute configureStart() to parse
+conf/web.xml and WEB-INF/web.xml
+for servlets filters and listeners.
+Put all Wrappers into Context
+end note
+deactivate ContextConfig
+Context -> Wrapper : start()
+activate Wrapper
+Wrapper -> Wrapper : init()
+Wrapper -> Pipeline : start()
+activate Pipeline
+Pipeline -> Pipeline : init()
+
+' Pipeline
+Pipeline -> Valve : start()
+activate Valve
+Valve -> Valve : init()
+Valve -> Valve : start()
+Valve -> Pipeline
+deactivate Valve
+Pipeline -> Wrapper
+deactivate Pipeline
+Wrapper -> Context
+deactivate Wrapper
+deactivate Context
+
+' Context Pipeline
+Context -> Pipeline : start()
+activate Context
+activate Pipeline
+Pipeline -> Pipeline : init()
+Pipeline -> Valve : start()
+activate Valve
+Valve -> Valve : init()
+Valve -> Valve : start()
+Valve -> Pipeline
+deactivate Valve
+Pipeline -> Context
+deactivate Pipeline
+Context -> Host
+deactivate Context
+Host -> HostConfig : STARTING
+activate HostConfig
+HostConfig -> HostConfig : start()
+note right
+When Host's state is STARTING
+the LifecycleListener <HostConfig> execute start()
+to deploy applications for any directories or WAR files.
+Put all Contexts of applications into Host
+
+Note:
+    Host's method addChild(context) will make Context
+    to execute its lifecycle method start()
+end note
+HostConfig -> Host
+deactivate HostConfig
+deactivate Host
+
+' Host Pipeline
+Host -> Pipeline : start()
+activate Host
+activate Pipeline
+Pipeline -> Pipeline : init()
+Pipeline -> Valve : start()
+activate Valve
+Valve -> Valve : init()
+Valve -> Valve : start()
+Valve -> Pipeline
+deactivate Valve
+Pipeline -> Host
+deactivate Pipeline
+Host -> Engine
+deactivate Host
+deactivate Engine
+
+' Engine Pipeline
+Engine -> Pipeline : start()
+activate Engine
+activate Pipeline
+Pipeline -> Pipeline : init()
+Pipeline -> Valve : start()
+activate Valve
+Valve -> Valve : init()
+Valve -> Valve : start()
+Valve -> Pipeline
+deactivate Valve
+Pipeline -> Engine
+deactivate Pipeline
+deactivate Engine
+
+@enduml
