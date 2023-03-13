@@ -1,0 +1,91 @@
+@startuml
+
+skinparam backgroundColor WhiteSmoke
+
+header "@ReionChan"
+footer "@ReionChan"
+skin rose
+
+title "<font size=30>Tomcat Architecture"
+
+frame "Server" #Wheat {
+    node "Service Collection" #LightGrey {
+        frame "Service" #Application {
+            component "Catalina Servlet Container" #Bisque {
+                frame "Engine" as engine #Plum {
+                    node "Host Collection" #LightGrey {
+                        frame "Host" #LightBlue {
+                            node "Context Collection" #LightGrey {
+                                frame "Context" #DodgerBlue {
+                                    node "Wrapper Collection" #LightGrey {
+                                        frame "Wrapper" #Cyan {
+                                            component "Servlet API" #hidden {
+                                                [Servlet] as servlet
+                                                [FilterChain] as filterChain
+                                            }
+
+                                            frame "Pipeline" as wp #HotPink {
+                                                collections Valve as wv
+                                            }
+                                        }
+                                    }
+
+                                    frame "Pipeline" as cp #HotPink {
+                                        collections Valve as cv
+                                    }
+                                }
+                            }
+
+                            frame "Pipeline" as hp #HotPink {
+                                collections Valve as hv
+                            }
+                        }
+                    }
+
+                    frame "Pipeline" as ep #HotPink {
+                        collections "Valve" as ev
+                    }
+                }
+            }
+
+            component "Coyote Connector Component" as coyote #Bisque {
+                node "Connector Collection" as connectors #LightGrey {
+                    frame "Connector" as connector #Coral {
+                        [CoyoteAdapter] as coyoteAdapter
+                    }
+                }
+                node "ProtocolHandler Collection" #LightGrey {
+                    frame "ProtocolHandler" as protocolHandler #YellowGreen {
+                        [AbstractEndPoint \n\n"Socket"] as endpoint
+                        [Processor \n\n"HTTP | AJP"] as processor
+                        interface "<<Adapter>>" as adapter
+                    }
+                }
+
+            }
+            [Jasper]
+            [JMX]
+            [EL]
+            [Logging]
+            [...]
+        }
+    }
+}
+
+endpoint -[#Red,thickness=1]right-> processor
+processor -[#Red,thickness=3]right-> adapter : "<font size=15 color=Red>Coyote\n<font size=18 color=Red>Request"
+adapter <|.[#Maroon]right. coyoteAdapter : "<font color=Maroon>Implements"
+coyoteAdapter -[#Blue,thickness=6]right-> ev : "<font size=15 color=Blue>Catalina\n<font size=18 color=Blue>Request"
+ev -[#Blue,thickness=6]right-> hv
+hv -[#Blue,thickness=6]right-> cv
+cv -[#Blue,thickness=6]right-> wv
+wv -[#Magenta,thickness=3]right-> filterChain : "<font size=15 color=Magenta>Catalina\n<font size=15 color=Magenta>RequestFacade"
+filterChain -[#Magenta,thickness=3]right-> servlet
+filterChain -[hidden]down- Jasper
+filterChain -[hidden]down- JMX
+filterChain -[hidden]down- EL
+filterChain -[hidden]down- Logging
+
+filterChain -[hidden]down- ...
+
+@enduml
