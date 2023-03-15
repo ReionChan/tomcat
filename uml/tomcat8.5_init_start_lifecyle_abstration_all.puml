@@ -5,7 +5,7 @@ footer "@ReionChan"
 
 skinparam backgroundColor WhiteSmoke
 
-title "<font size=58>Tomcat - Lifecycle Abstraction"
+title "<font size=58>Tomcat Start Abstraction"
 participant Bootstrap
 participant Catalina
 participant Digester
