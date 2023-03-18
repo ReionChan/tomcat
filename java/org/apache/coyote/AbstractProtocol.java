@@ -870,6 +870,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                     }
                 }
                 if (processor == null) {
+                    //
                     processor = getProtocol().createProcessor();
                     register(processor);
                     if (getLog().isDebugEnabled()) {

@@ -1,0 +1,111 @@
+@startuml
+
+header "@ReionChan"
+footer "@ReionChan"
+
+skinparam backgroundColor WhiteSmoke
+
+box "<font size=30>Http11NioProtocol Init&Start Process"
+participant Connector as Con
+participant Http11NioProtocol as HNP
+participant AbstractHttp11Protocol as AHP
+participant AbstractProtocol as AP
+participant CoyoteAdapter as CA
+participant NioEndpoint as NE
+participant ConnectionHandler as CH
+participant ServerSocketChannel as SSC
+participant ServerSocket as SS
+'participant NioSelectorPool as NSP
+'participant NioBlockingSelector as NBS
+'participant BlockPoller as BP
+participant Poller as Po
+participant Acceptor as Acc
+end box
+
+group#gold 服务端连接启动流程
+    autonumber 1.1
+    Con -> Con: Connector(Http11NioProtocol)
+    activate Con
+    Con -> HNP: newInstance()
+    HNP -> NE: new
+    AHP -> CH: new
+    AHP -> NE: setHandler() 赋值 handler
+    NE -> HNP: 赋值 endpoint
+    HNP -> Con: 赋值 protocolHandler
+    deactivate Con
+    ||30||
+
+    autonumber 2.1
+    Con -> Con: initInternal()
+    activate Con
+    Con -> CA: new
+    Con -> HNP: setAdapter(adapter)
+    Con -> HNP: init()
+    activate HNP
+    HNP -> AHP: init()
+    AHP -> AP: init()
+    AP -> NE: init()
+    activate NE
+    NE -> NE: bindOnInit=false\n延迟执行 bind()
+    deactivate NE
+    NE -> HNP
+    HNP -> Con
+    deactivate HNP
+    deactivate Con
+    ||30||
+
+    autonumber 3.1
+    Con -> Con: startInternal()
+    activate Con
+    Con -> HNP: start()
+    activate HNP
+    HNP -> AP: start()
+    AP -> NE: start()
+    NE -> NE: 启动后才执行 bind()
+    activate NE
+    NE -> SSC: ServerSocketChannel.open()
+    SSC -> SS: bind()
+    'NE -> NSP: selectorPool.open()
+    'activate NSP
+    'NSP -> NBS: new
+    'NBS -> BP: new & open()
+    'BP -> BP: run()
+    'note right
+    '    1. 从事件队列获取 Runnable，并执行 run()
+    '    2. 在 NIO 中以阻塞的形式读取请求体
+    'end note
+    'activate BP
+    'BP -> NSP
+    'NSP -> NE
+    'deactivate NSP
+    'deactivate NE
+    NE -> NE: startInternal()
+    activate NE
+    NE -> NE: createExecutor() \n创建 Worker 线程池
+    NE -> Po: 创建 Poller 线程
+    Po -> Po: selector=Selector.open()
+    Po -> Po: run()
+    note right
+        1. 从事件队列获取 PollerEvent 事件，并执行事件的 run()
+           从而将 SocketChannel 从此类 selector 中注册或剔除
+        2. 轮询此类 selector 中的 SelectionKey 进行读写处理
+    end note
+    activate Po
+    NE -> Acc: 创建 Acceptor 线程
+    Acc -> Acc: new
+    NE -> Acc: start()
+    NE -> HNP
+    deactivate NE
+    HNP -> Con
+    deactivate Con
+    deactivate HNP
+    Acc -> Acc: run()
+    note right
+        接受客户端 SocketChannel 将其封装为 NioChannel 后
+        注册到 NioEndpoint.Poller 的 PollerEvent 事件队列
+    end note
+    activate Acc
+    ||30||
+end
+
+@enduml
