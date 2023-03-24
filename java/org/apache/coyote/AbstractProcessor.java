@@ -380,7 +380,7 @@ public abstract class AbstractProcessor extends AbstractProcessorLight implement
         case COMMIT: {
             if (!response.isCommitted()) {
                 try {
-                    // Validate and write response headers
+                    // Validate and write response headers 校验与写入响应头
                     prepareResponse();
                 } catch (IOException e) {
                     handleIOException(e);
