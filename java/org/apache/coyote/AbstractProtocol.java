@@ -95,6 +95,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
         this.endpoint = endpoint;
         ConnectionHandler<S> cHandler = new ConnectionHandler<>(this);
         setHandler(cHandler);
+        // 13. 原来 Handler 具体实现类已经固定为 ConnectionHandler
         getEndpoint().setHandler(cHandler);
         setSoLinger(Constants.DEFAULT_CONNECTION_LINGER);
         setTcpNoDelay(Constants.DEFAULT_TCP_NO_DELAY);
@@ -781,6 +782,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
 
 
         @Override
+        // 14. 来到了 ConnectionHandler 的具体处理 SocketWrapperBase 的方法 process
         public SocketState process(SocketWrapperBase<S> wrapper, SocketEvent status) {
             if (getLog().isDebugEnabled()) {
                 getLog().debug(sm.getString("abstractConnectionHandler.process",

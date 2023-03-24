@@ -867,6 +867,7 @@ public abstract class AbstractEndpoint<S,U> {
      */
     private Handler<S> handler = null;
     public void setHandler(Handler<S> handler ) { this.handler = handler; }
+    // 12. 获得接口 Handler 具体实现类
     public Handler<S> getHandler() { return handler; }
 
 

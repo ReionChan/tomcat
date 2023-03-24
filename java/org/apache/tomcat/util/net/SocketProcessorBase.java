@@ -46,10 +46,11 @@ public abstract class SocketProcessorBase<S> implements Runnable {
             if (socketWrapper.isClosed()) {
                 return;
             }
+            // 9. 该抽象方法留给具体协议子类去实现，而该线程任务方法既可以在线程池执行也可以在被调用线程执行
             doRun();
         }
     }
 
-
+    // 10. 本抽象方法里进行真正处理 SocketWrapperBase 的逻辑
     protected abstract void doRun();
 }

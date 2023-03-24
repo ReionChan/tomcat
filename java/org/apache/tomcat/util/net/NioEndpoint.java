@@ -1710,6 +1710,8 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
                     SocketState state = SocketState.OPEN;
                     // Process the request from this socket
                     if (event == null) {
+                        // 11. SocketProcessorBase 实现类的 doRun 方法隐含将处理 SocketWrapperBase 的任务
+                        //      委托给接口 org.apache.tomcat.util.net.AbstractEndpoint.Handler 的具体实现类去处理的潜规则
                         state = getHandler().process(socketWrapper, SocketEvent.OPEN_READ);
                     } else {
                         state = getHandler().process(socketWrapper, event);
