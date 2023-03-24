@@ -526,6 +526,7 @@ public class Http11InputBuffer implements InputBuffer, ApplicationBufferHandler 
                 request.requestURI().setBytes(byteBuffer.array(), parsingRequestLineStart,
                         end - parsingRequestLineStart);
             }
+            System.out.println("*************** @" + this.wrapper.getRemoteHost() + ":" + this.wrapper.getRemotePort() + " Path: " + request.requestURI().toString());
             // HTTP/0.9 processing jumps to stage 7.
             // Don't want to overwrite that here.
             if (parsingRequestLinePhase == 4) {
