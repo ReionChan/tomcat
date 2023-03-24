@@ -528,6 +528,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
      *
      * @return A fully configured Processor instance that is ready to use
      */
+    // 17. 抽象的创建出 Processor 接口的实现类的实例的方法
     protected abstract Processor createProcessor();
 
 
@@ -762,6 +763,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
             this.proto = proto;
         }
 
+        // 16. 获得具体的协议实现类，例如：Http11NioProtocol
         protected AbstractProtocol<S> getProtocol() {
             return proto;
         }
@@ -872,7 +874,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
                     }
                 }
                 if (processor == null) {
-                    //
+                    // 15. 继续将对 SocketWrapperBase 的处理委托给 AbstractProtocol 关联的 Processor 接口的具体实现类处理
                     processor = getProtocol().createProcessor();
                     register(processor);
                     if (getLog().isDebugEnabled()) {
@@ -885,6 +887,7 @@ public abstract class AbstractProtocol<S> implements ProtocolHandler,
 
                 SocketState state = SocketState.CLOSED;
                 do {
+                    // 19. 调用处理器的 process 方法进行处理
                     state = processor.process(wrapper, status);
 
                     if (state == SocketState.UPGRADING) {

@@ -1110,6 +1110,7 @@ public abstract class AbstractHttp11Protocol<S> extends AbstractProtocol<S> {
 
     @Override
     protected Processor createProcessor() {
+        // 18. Http11NioProtocol 协议关联的 Processor 实现类为 Http11Processor
         Http11Processor processor = new Http11Processor(this, getEndpoint());
         processor.setAdapter(getAdapter());
         processor.setMaxKeepAliveRequests(getMaxKeepAliveRequests());
