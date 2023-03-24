@@ -490,6 +490,7 @@ public class Http11Processor extends AbstractProcessor {
 
 
     @Override
+    // 24. 具体实现类 Http11Processor 实现父类的 service 抽象方法
     public SocketState service(SocketWrapperBase<?> socketWrapper)
         throws IOException {
         RequestInfo rp = request.getRequestProcessor();
@@ -638,7 +639,7 @@ public class Http11Processor extends AbstractProcessor {
             if (getErrorState().isIoAllowed()) {
                 try {
                     rp.setStage(org.apache.coyote.Constants.STAGE_SERVICE);
-                    //
+                    // 25. 将 SocketWrapperBase 完成协议解析，转换为 request 后交给 Adapter 的 service 处理
                     getAdapter().service(request, response);
                     // Handle when the response was committed before a serious
                     // error occurred.  Throwing a ServletException should both

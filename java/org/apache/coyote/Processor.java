@@ -44,6 +44,7 @@ public interface Processor {
      * @throws IOException If an I/O error occurs during the processing of the
      *         request
      */
+    // 20. 定义处理某种 SocketEvent 事件下的 SocketWrapperBase，并返回 SocketState 状态
     SocketState process(SocketWrapperBase<?> socketWrapper, SocketEvent status) throws IOException;
 
     /**

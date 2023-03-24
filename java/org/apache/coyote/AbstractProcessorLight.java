@@ -49,6 +49,7 @@ public abstract class AbstractProcessorLight implements Processor {
                 if (getLog().isDebugEnabled()) {
                     getLog().debug("Processing dispatch type: [" + nextDispatch + "]");
                 }
+                // 21. 抽象子类定义出 dispatch、service 两种抽象方法来给具体子类实现处理逻辑，同时完成一些通用样式代码处理
                 state = dispatch(nextDispatch.getSocketStatus());
                 if (!dispatches.hasNext()) {
                     state = checkForPipelinedData(state, socketWrapper);
@@ -56,13 +57,14 @@ public abstract class AbstractProcessorLight implements Processor {
             } else if (status == SocketEvent.DISCONNECT) {
                 // Do nothing here, just wait for it to get recycled
             } else if (isAsync() || isUpgrade() || state == SocketState.ASYNC_END) {
+                // 21. 抽象子类定义出 dispatch、service 两种抽象方法来给具体子类实现处理逻辑，同时完成一些通用样式代码处理
                 state = dispatch(status);
                 state = checkForPipelinedData(state, socketWrapper);
             } else if (status == SocketEvent.OPEN_WRITE) {
                 // Extra write event likely after async, ignore
                 state = SocketState.LONG;
             } else if (status == SocketEvent.OPEN_READ) {
-                //
+                // 21. 抽象子类定义出 dispatch、service 两种抽象方法来给具体子类实现处理逻辑，同时完成一些通用样式代码处理
                 state = service(socketWrapper);
             } else if (status == SocketEvent.CONNECT_FAIL) {
                 logAccess(socketWrapper);
@@ -175,6 +177,7 @@ public abstract class AbstractProcessorLight implements Processor {
      * @throws IOException If an I/O error occurs during the processing of the
      *         request
      */
+    // 22. 抽象子类定义出 service 两种抽象方法来给具体子类实现处理逻辑
     protected abstract SocketState service(SocketWrapperBase<?> socketWrapper) throws IOException;
 
     /**
@@ -191,6 +194,7 @@ public abstract class AbstractProcessorLight implements Processor {
      * @throws IOException If an I/O error occurs during the processing of the
      *         request
      */
+    // 23. 抽象子类定义出 dispatch 两种抽象方法来给具体子类实现处理逻辑
     protected abstract SocketState dispatch(SocketEvent status) throws IOException;
 
     protected abstract SocketState asyncPostProcess();
