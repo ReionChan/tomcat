@@ -510,7 +510,7 @@ public class Http11Processor extends AbstractProcessor {
 
             // Parsing the request header
             try {
-                // 解析请求头
+                // 解析请求行 METHOD PATH PROTOCOL
                 if (!inputBuffer.parseRequestLine(keptAlive)) {
                     if (inputBuffer.getParsingRequestLinePhase() == -1) {
                         return SocketState.UPGRADING;
@@ -532,7 +532,7 @@ public class Http11Processor extends AbstractProcessor {
                     keptAlive = true;
                     // Set this every time in case limit has been changed via JMX
                     request.getMimeHeaders().setLimit(endpoint.getMaxHeaderCount());
-                    // Don't parse headers for HTTP/0.9
+                    // parseHeaders 解析请求头
                     if (!http09 && !inputBuffer.parseHeaders()) {
                         // We've read part of the request, don't recycle it
                         // instead associate it with the socket
