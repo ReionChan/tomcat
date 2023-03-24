@@ -1476,6 +1476,11 @@ public abstract class AbstractEndpoint<S,U> {
 
     protected abstract U serverSocketAccept() throws Exception;
 
+    // 2. 对 socket 连接进行封装处理为 SocketWrapperBase 抽象的子类，具体子类由具体协议确定
+    //      同时，该方法里也蕴含着需将 SocketWrapperBase 交给本类模版方法
+    //      processSocket(SocketWrapperBase<S> socketWrapper, SocketEvent event, boolean dispatch)
+    //      处理的潜在要求，具体如何衔接视具体实现类决定，
+    //      例如：NioEndpoint 处理逻辑是交给 Poller 轮询后交给 processKey 方法来调用 processSocket
     protected abstract boolean setSocketOptions(U socket);
 
     /**

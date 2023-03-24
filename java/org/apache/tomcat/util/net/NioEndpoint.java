@@ -383,6 +383,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
      */
     @Override
     protected boolean setSocketOptions(SocketChannel socket) {
+        // 3. HTTP11 NIO 协议将 socket 封装为 NioSocketWrapper
         NioSocketWrapper socketWrapper = null;
         try {
             // Allocate channel and wrapper
@@ -413,11 +414,15 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
             // Set socket properties
             // Disable blocking, polling will be used
             socket.configureBlocking(false);
+            // 4. 对 socket 进行一些参数配置
             socketProperties.setProperties(socket.socket());
 
             socketWrapper.setReadTimeout(getConnectionTimeout());
             socketWrapper.setWriteTimeout(getConnectionTimeout());
             socketWrapper.setKeepAliveLeft(NioEndpoint.this.getMaxKeepAliveRequests());
+            // 5. 将封装类注册到 poller，由后者来衔接调用
+            // AbstractEndpoint.processSocket(SocketWrapperBase<S> socketWrapper, SocketEvent event, boolean dispatch)
+            // 从而引入抽象线程任务处理器 SocketProcessorBase
             poller.register(socketWrapper);
             return true;
         } catch (Throwable t) {
