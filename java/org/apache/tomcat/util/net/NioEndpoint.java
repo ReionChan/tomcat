@@ -489,6 +489,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
     @Override
     protected SocketProcessorBase<NioChannel> createSocketProcessor(
             SocketWrapperBase<NioChannel> socketWrapper, SocketEvent event) {
+        // 8. 拿 NioEndpoint 子类的实现，它创建了具体的线程处理器 SocketProcessor 来处理 SocketWrapperBase
         return new SocketProcessor(socketWrapper, event);
     }
 

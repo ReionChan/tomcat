@@ -1173,6 +1173,7 @@ public abstract class AbstractEndpoint<S,U> {
                 sc = processorCache.pop();
             }
             if (sc == null) {
+                // 6. 将封装的 SocketWrapperBase 交给衔接的线程任务处理器 SocketProcessorBase
                 sc = createSocketProcessor(socketWrapper, event);
             } else {
                 sc.reset(socketWrapper, event);
@@ -1196,7 +1197,7 @@ public abstract class AbstractEndpoint<S,U> {
         return true;
     }
 
-
+    // 7. 用此方法获得抽象线程任务处理器 SocketProcessorBase 的某个具体协议实现，此处是留给具体协议的接口方法
     protected abstract SocketProcessorBase<S> createSocketProcessor(
             SocketWrapperBase<S> socketWrapper, SocketEvent event);
 
