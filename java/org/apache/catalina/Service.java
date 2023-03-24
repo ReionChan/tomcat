@@ -39,6 +39,7 @@ public interface Service extends Lifecycle {
      * @return the <code>Engine</code> that handles requests for all
      * <code>Connectors</code> associated with this Service.
      */
+    // 31. 获得关联的顶层容器 Engine
     public Engine getContainer();
 
     /**

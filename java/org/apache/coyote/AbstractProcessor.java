@@ -153,6 +153,7 @@ public abstract class AbstractProcessor extends AbstractProcessorLight implement
      *
      * @return the associated adapter
      */
+    // 26. 获得适配器 Adapter 实例 CoyoteAdapter
     public Adapter getAdapter() {
         return adapter;
     }

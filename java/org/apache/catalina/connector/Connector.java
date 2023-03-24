@@ -372,6 +372,7 @@ public class Connector extends LifecycleMBeanBase  {
     /**
      * @return the <code>Service</code> with which we are associated (if any).
      */
+    // 30. Connector 关联的 Service 实例
     public Service getService() {
         return this.service;
     }

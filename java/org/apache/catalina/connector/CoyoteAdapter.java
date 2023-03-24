@@ -320,9 +320,11 @@ public class CoyoteAdapter implements Adapter {
 
 
     @Override
+    // 27. 具体实现方法
     public void service(org.apache.coyote.Request req, org.apache.coyote.Response res)
             throws Exception {
 
+        // 28. coyote request 适配成 catalina request
         Request request = (Request) req.getNote(ADAPTER_NOTES);
         Response response = (Response) res.getNote(ADAPTER_NOTES);
 
@@ -365,6 +367,7 @@ public class CoyoteAdapter implements Adapter {
                 request.setAsyncSupported(
                         connector.getService().getContainer().getPipeline().isAsyncSupported());
                 // Calling the container
+                // 29. 将适配成的 catalina request 交给 Connector 关联的 servlet 容器处理 Engine 处理
                 connector.getService().getContainer().getPipeline().getFirst().invoke(
                         request, response);
             }
