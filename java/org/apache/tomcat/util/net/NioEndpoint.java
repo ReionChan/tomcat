@@ -404,6 +404,10 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
             NioSocketWrapper newWrapper = new NioSocketWrapper(channel, this);
             channel.reset(socket, newWrapper);
             connections.put(socket, newWrapper);
+            System.out.println("*************** 连接数：" + connections.size());
+            for (SocketWrapperBase<NioChannel> sw : connections.values()) {
+                System.out.println("\t\t 连接：" + sw.getRemoteHost() + "@" + sw.getRemotePort());
+            }
             socketWrapper = newWrapper;
 
             // Set socket properties
@@ -666,6 +670,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
 
         public void cancelledKey(SelectionKey sk, SocketWrapperBase<NioChannel> socketWrapper) {
             if (JreCompat.isJre11Available() && socketWrapper != null) {
+                log.info("Poller isJre11Available cancelledKey [" + socketWrapper.remotePort + "]");
                 socketWrapper.close();
             } else {
                 try {
@@ -673,10 +678,13 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
                     // poller select and the socket channel close which would cancel the key
                     // This workaround is not needed on Java 11+
                     if (sk != null) {
+                        log.info("Poller sk [" + sk.toString() + "]");
                         sk.attach(null);
                         if (sk.isValid()) {
                             sk.cancel();
                         }
+                    } else {
+                        log.info("Poller sk [" + null + "]");
                     }
                 } catch (Throwable e) {
                     ExceptionUtils.handleThrowable(e);
@@ -685,8 +693,10 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
                     }
                 } finally {
                     if (socketWrapper != null) {
+                        log.info("Poller finally cancelledKey [" + socketWrapper.remotePort + "]");
                         socketWrapper.close();
                     }
+                    log.info("Poller cancelledKey [ None]");
                 }
             }
         }
@@ -743,6 +753,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
                     SelectionKey sk = iterator.next();
                     iterator.remove();
                     NioSocketWrapper socketWrapper = (NioSocketWrapper) sk.attachment();
+                    log.info("Poller process [" + socketWrapper.remotePort + "]");
                     // Attachment may be null if another thread has called
                     // cancelledKey()
                     if (socketWrapper != null) {
@@ -750,7 +761,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
                     }
                 }
 
-                // Process timeouts
+                // Process timeouts 处理超时的 Socket 连接
                 timeout(keyCount,hasEvents);
             }
 
@@ -780,6 +791,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
                                         socketWrapper.readLock.notify();
                                     }
                                 } else if (!processSocket(socketWrapper, SocketEvent.OPEN_READ, true)) {
+                                    log.info("Poller OPEN_READ [" + socketWrapper.remotePort + "]");
                                     closeSocket = true;
                                 }
                             }
@@ -794,19 +806,24 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
                                         socketWrapper.writeLock.notify();
                                     }
                                 } else if (!processSocket(socketWrapper, SocketEvent.OPEN_WRITE, true)) {
+                                    log.info("Poller OPEN_WRITE [" + socketWrapper.remotePort + "]");
                                     closeSocket = true;
                                 }
                             }
                             if (closeSocket) {
+                                log.info("Poller closeSocket cancelledKey [" + socketWrapper.remotePort + "]");
                                 cancelledKey(sk, socketWrapper);
                             }
                         }
                     }
                 } else {
                     // Invalid key
+                    log.info("Poller Invalid key cancelledKey [" + socketWrapper.remotePort + "]");
                     cancelledKey(sk, socketWrapper);
                 }
             } catch (CancelledKeyException ckx) {
+                log.info("Poller CancelledKeyException key cancelledKey [" + socketWrapper.remotePort + "]");
+                ckx.printStackTrace(System.out);
                 cancelledKey(sk, socketWrapper);
             } catch (Throwable t) {
                 ExceptionUtils.handleThrowable(t);
@@ -955,6 +972,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
                     try {
                         if (socketWrapper == null) {
                             // We don't support any keys without attachments
+                            // 轮询器中注册的 SocketChannel 的附件 attachment 为空，将其冲轮询器中剔除
                             cancelledKey(key, null);
                         } else if (close) {
                             key.interestOps(0);
@@ -1152,6 +1170,9 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
             if (log.isDebugEnabled()) {
                 log.debug("Calling [" + getEndpoint() + "].closeSocket([" + this + "])");
             }
+
+            log.info("Calling [" + getEndpoint() + "].closeSocket([" + this + "])");
+
             try {
                 getEndpoint().connections.remove(getSocket().getIOChannel());
                 if (getSocket().isOpen()) {
@@ -1688,6 +1709,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
                         state = getHandler().process(socketWrapper, event);
                     }
                     if (state == SocketState.CLOSED) {
+                        log.info("SocketState.CLOSED cancel key [" + getSelectionKey() + "]");
                         poller.cancelledKey(getSelectionKey(), socketWrapper);
                     }
                 } else if (handshake == -1 ) {

@@ -548,6 +548,7 @@ public class Http11Processor extends AbstractProcessor {
                 if (log.isDebugEnabled()) {
                     log.debug(sm.getString("http11processor.header.parse"), e);
                 }
+                log.info(sm.getString("http11processor.header.parse CLOSE_CONNECTION_NOW"), e);
                 setErrorState(ErrorState.CLOSE_CONNECTION_NOW, e);
                 break;
             } catch (Throwable t) {
@@ -713,6 +714,7 @@ public class Http11Processor extends AbstractProcessor {
         rp.setStage(org.apache.coyote.Constants.STAGE_ENDED);
 
         if (getErrorState().isError() || (endpoint.isPaused() && !isAsync())) {
+            log.info("******* Error SocketState.CLOSED");
             return SocketState.CLOSED;
         } else if (isAsync()) {
             return SocketState.LONG;
